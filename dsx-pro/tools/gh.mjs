@@ -181,15 +181,26 @@ async function release() {
   const tag = process.argv[3];
   const title = process.argv[4];
   const files = [];
+  // 说明文本：--notes-file 优先（避免把多行/中文正文塞进命令行）
+  const notesFile = arg('--notes-file');
   let notes = arg('--notes', `发布 ${tag}`);
+  if (notesFile) {
+    try {
+      notes = readFileSync(notesFile, 'utf8');
+    } catch (e) {
+      console.error(`✗ 读不到说明文件：${notesFile}`);
+      process.exit(1);
+    }
+  }
   for (let i = 5; i < process.argv.length; i++) {
     const a = process.argv[i];
     if (a === '--notes') { i++; continue; }
+    if (a === '--notes-file') { i++; continue; }
     if (a.startsWith('--')) continue;
     files.push(a);
   }
   if (!tag || !title) {
-    console.error('用法：node tools/gh.mjs release <tag> <标题> <文件...> [--notes "说明"]');
+    console.error('用法：node tools/gh.mjs release <tag> <标题> <文件...> [--notes "说明" | --notes-file <路径>]');
     process.exit(1);
   }
 
@@ -253,6 +264,6 @@ else {
   console.log('  node tools/gh.mjs whoami');
   console.log('  node tools/gh.mjs create-repo <仓库名> [--public|--private] [--desc "描述"]');
   console.log('  node tools/gh.mjs credfile');
-  console.log('  node tools/gh.mjs release <tag> <标题> <文件...> [--notes "说明"]');
+  console.log('  node tools/gh.mjs release <tag> <标题> <文件...> [--notes "说明" | --notes-file <路径>]');
   process.exit(1);
 }

@@ -129,9 +129,14 @@
 cd dsx-pro
 npm install --ignore-scripts     # 见下方说明
 npm run build                    # 生成 dist/ 与 deliverables/
-npm test                         # 169 项自动化测试（见下）
+npm test                         # 438 项自动化测试（见下）
 npm run icons                    # 重新生成图标
+node tools/verify-build.mjs      # 产物自检：确认关键能力真的被打包进 dist
 ```
+
+> 维护者脚本 `tools/gh.mjs` 用于发布（建仓库 / 生成推送凭据 / 发 Release），
+> 只用 node 自带的 fetch，不需要安装 gh CLI。token 从环境变量 `GH_TOKEN`
+> 或仓库上一级的 `.gh-token.txt` 读取，**不会**出现在命令行里。
 
 > `--ignore-scripts` 是必要的：esbuild 的安装脚本会以管道方式 spawn 子进程，
 > 在某些受限环境（含 CI 沙箱）会因 EPERM 失败。esbuild 的平台二进制来自
