@@ -37,5 +37,11 @@ dsx-pro/docs/recon-deepseek/probe.txt
 dsx-pro/docs/recon-deepseek/shell.html
 dsx-pro/docs/recon-deepseek/assets.json
 
+# ---------- 凭据（绝不入库）----------
+# token 本身默认放在仓库外（F:\dsh\.gh-token.txt），这里再兜一层
+.gh-token.txt
+.gh-extraheader
+.gh-*
+
 # ---------- 其它项目的文件 ----------
 一键解题目标拟定.md
