@@ -1,0 +1,32 @@
+{
+  "name": "deepseek-exporter-pro",
+  "version": "1.1.3",
+  "private": true,
+  "type": "module",
+  "description": "DeepSeek 对话导出 Pro —— 支持 chat.deepseek.com 与 DSH GUI 的对话导出扩展（Markdown / DOCX / 图片）",
+  "license": "MIT",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:ext": "node build.mjs --only=ext",
+    "build:md2docx": "node build.mjs --only=md2docx",
+    "test": "node tools/selftest.mjs && node tools/domtest.mjs && node tools/uitest.mjs && node tools/optionstest.mjs && node tools/contenttest.mjs dsh && node tools/contenttest.mjs dsh-empty && node tools/contenttest.mjs deepseek && node tools/contenttest.mjs deepseek-empty && node tools/contenttest.mjs none && node tools/contenttest.mjs localhost-other",
+    "test:unit": "node tools/selftest.mjs",
+    "test:dom": "node tools/domtest.mjs",
+    "test:ui": "node tools/uitest.mjs",
+    "test:options": "node tools/optionstest.mjs",
+    "test:content": "node tools/contenttest.mjs dsh && node tools/contenttest.mjs deepseek && node tools/contenttest.mjs none",
+    "selftest": "node tools/selftest.mjs",
+    "icons": "node tools/make-icons.mjs"
+  },
+  "dependencies": {
+    "docx": "^9.5.1",
+    "fast-xml-parser": "^4.5.1",
+    "katex": "^0.16.11",
+    "marked": "^14.1.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "jsdom": "^30.0.1",
+    "jszip": "^3.10.1"
+  }
+}

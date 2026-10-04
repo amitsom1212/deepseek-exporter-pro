@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Markdown → Word (.docx) 转换器 · 离线版</title>
+<style>
+:root{
+  --bg:#f4f5f7; --card:#fff; --border:#e3e5e9; --text:#1b1d22; --dim:#5b6270;
+  --faint:#8b93a1; --accent:#4d6bfe; --ok:#17803d; --err:#d93a3f; --mono:ui-monospace,Consolas,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#131417; --card:#1b1d21; --border:#2c2f36; --text:#e8eaee; --dim:#a3aab6; --faint:#7b8391; --accent:#6b83ff;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+header{padding:16px 24px;border-bottom:1px solid var(--border);background:var(--card);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+h1{margin:0;font-size:16px;font-weight:650}
+.sub{color:var(--faint);font-size:12.5px}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 20px 60px;display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
+@media (max-width:920px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px}
+.card h2{margin:0 0 10px;font-size:14px;font-weight:600}
+textarea{
+  width:100%;min-height:420px;padding:12px;border:1px solid var(--border);border-radius:10px;
+  background:var(--bg);color:var(--text);font-family:var(--mono);font-size:12.5px;line-height:1.6;resize:vertical
+}
+textarea:focus{outline:none;border-color:var(--accent)}
+.btn{height:38px;padding:0 18px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--text);font:inherit;font-size:13.5px;cursor:pointer;transition:.13s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.primary:hover{filter:brightness(1.08);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+label.f{display:block;font-size:12.5px;color:var(--dim);margin:12px 0 5px;font-weight:550}
+input[type=text],input[type=number]{width:100%;height:34px;padding:0 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font:inherit;font-size:13px}
+input:focus{outline:none;border-color:var(--accent)}
+.drop{border:2px dashed var(--border);border-radius:10px;padding:22px;text-align:center;color:var(--faint);font-size:13px;cursor:pointer;transition:.15s}
+.drop.hot{border-color:var(--accent);color:var(--accent);background:rgba(77,107,254,.06)}
+.tip{color:var(--faint);font-size:12px;line-height:1.7;margin:8px 0 0}
+.status{margin-top:12px;font-size:13px;min-height:20px}
+.status.ok{color:var(--ok)} .status.err{color:var(--err)}
+.stat{color:var(--faint);font-size:12px;margin-top:6px}
+kbd{background:rgba(127,127,127,.15);padding:1px 5px;border-radius:4px;font-size:11.5px;font-family:var(--mono)}
+code{background:rgba(127,127,127,.14);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:.9em}
+ol{padding-left:20px;color:var(--dim);font-size:13px;margin:8px 0 0}
+ol li{margin-bottom:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Markdown → Word (.docx)</h1>
+  <span class="sub">离线可用 · 数学公式转成 Word 原生可编辑公式 · 不联网、不上传</span>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h2>① 粘贴 Markdown 或拖入 .md 文件</h2>
+    <div class="drop" id="drop">
+      把 <b>.md / .markdown / .txt</b> 文件拖到这里，或点击选择文件
+      <input type="file" id="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
+    </div>
+    <label class="f" style="margin-top:14px">Markdown 内容</label>
+    <textarea id="md" spellcheck="false" placeholder="# 标题
+
+行内公式 $E = mc^2$，展示公式：
+
+$$\sum_{i=1}^{n} x_i^2 = \frac{n(n+1)(2n+1)}{6}$$
+
+| 名称 | 公式 |
+| --- | --- |
+| 求和 | $\sum_{i=1}^{n} a_i$ |
+
+- 支持列表、表格、代码块、引用、图片
+"></textarea>
+    <div class="row">
+      <button class="btn primary" id="go">转换并下载 .docx</button>
+      <button class="btn" id="preview">只预览（不下载）</button>
+      <button class="btn" id="clear">清空</button>
+      <span class="stat" id="stat"></span>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <div>
+    <div class="card">
+      <h2>② 选项</h2>
+      <label class="f">文档标题（写入文件属性）</label>
+      <input type="text" id="title" value="Markdown 文档">
+      <label class="f">正文字号（磅 × 2，21 = 五号 10.5pt）</label>
+      <input type="number" id="size" value="21" min="14" max="48" step="1">
+      <label class="f">图片最大宽度（像素）</label>
+      <input type="number" id="imgw" value="620" min="120" max="1400" step="20">
+      <label class="f">输出文件名</label>
+      <input type="text" id="fname" value="document">
+      <p class="tip">
+        公式支持：分数、根式、上下标、求和/积分（含上下限）、矩阵、对齐环境、希腊字母、重音（向量/横线/尖帽）。
+        转换后是 <b>Word 原生公式</b>，可以在 Word 里直接改。
+      </p>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h2>③ 用法</h2>
+      <ol>
+        <li>把 ChatGPT / DeepSeek / 任何地方的 Markdown 粘进左边。</li>
+        <li>点「转换并下载 .docx」，浏览器会直接下载 Word 文件。</li>
+        <li>本页面完全离线：不会发送任何数据到网络。</li>
+      </ol>
+      <p class="tip">
+        也可以在其它网页/脚本里调用同目录下的 <code>md2docx.js</code>：
+        <br><code>MdToDocx.mdToDocx(md).then(blob =&gt; ...)</code>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- 打包时这里会被替换成转换器本体（单文件离线版） -->
+<script>/*__DSX_BUNDLE__*/</script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var statusEl = $('status'), statEl = $('stat');
+
+  function setStatus(text, kind) {
+    statusEl.textContent = text || '';
+    statusEl.className = 'status' + (kind ? ' ' + kind : '');
+  }
+
+  function opts() {
+    return {
+      title: $('title').value || 'Markdown 文档',
+      baseSize: Number($('size').value) || 21,
+      imageMaxWidth: Number($('imgw').value) || 620
+    };
+  }
+
+  function ensureLib() {
+    if (!window.MdToDocx || !window.MdToDocx.mdToDocxBlob) {
+      throw new Error('转换器未加载（md2docx.js 缺失或未打包进本页面）');
+    }
+    return window.MdToDocx;
+  }
+
+  async function convert(download) {
+    var md = $('md').value;
+    if (!md.trim()) { setStatus('请先粘贴 Markdown 内容', 'err'); return; }
+    var t0 = performance.now();
+    setStatus('转换中…');
+    try {
+      var lib = ensureLib();
+      var bytes = await lib.mdToDocxBuffer(md, opts());
+      var ms = Math.round(performance.now() - t0);
+      var kb = (bytes.length / 1024).toFixed(1);
+      statEl.textContent = '大小 ' + kb + ' KB · 用时 ' + ms + ' ms';
+
+      var mathCount = (md.match(/\$\$[\s\S]+?\$\$|\$[^$\n]+?\$/g) || []).length;
+      if (download) {
+        var blob = new Blob([bytes], { type: lib.DOCX_MIME });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        var name = ($('fname').value || 'document').replace(/\.docx$/i, '');
+        a.href = url; a.download = name + '.docx';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+        setStatus('已生成并下载：' + name + '.docx（识别到 ' + mathCount + ' 个公式）', 'ok');
+      } else {
+        setStatus('转换成功：' + kb + ' KB，含 ' + mathCount + ' 个公式（未下载）', 'ok');
+      }
+    } catch (e) {
+      console.error(e);
+      setStatus('转换失败：' + (e && e.message ? e.message : e), 'err');
+    }
+  }
+
+  $('go').addEventListener('click', function () { convert(true); });
+  $('preview').addEventListener('click', function () { convert(false); });
+  $('clear').addEventListener('click', function () { $('md').value = ''; setStatus(''); statEl.textContent = ''; });
+
+  var drop = $('drop'), file = $('file');
+  drop.addEventListener('click', function () { file.click(); });
+  file.addEventListener('change', function () { if (file.files[0]) readFile(file.files[0]); });
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('hot'); });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('hot'); });
+  });
+  drop.addEventListener('drop', function (e) {
+    var f = e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f) readFile(f);
+  });
+  function readFile(f) {
+    var r = new FileReader();
+    r.onload = function () {
+      $('md').value = String(r.result || '');
+      $('fname').value = (f.name || 'document').replace(/\.[^.]+$/, '');
+      $('title').value = $('fname').value;
+      setStatus('已读取 ' + f.name + '（' + ($('md').value.length) + ' 字符）', 'ok');
+    };
+    r.onerror = function () { setStatus('读取文件失败', 'err'); };
+    r.readAsText(f, 'utf-8');
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+# ---------- 依赖与缓存 ----------
+node_modules/
+.npm-cache/
+__pycache__/
+*.pyc
+
+# ---------- 本机记忆库（含跨会话记忆，绝不外传）----------
+.dsh-meow/
+
+# ---------- 编辑器 / 系统 ----------
+.idea/
+.vscode/
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ---------- 构建与分发产物（可用 npm run build 重新生成）----------
+# 需要现成二进制包请从 Releases 下载
+*.zip
+deliverables/*.zip
+deliverables/*.html
+deliverables/*.docx
+deliverables/md2docx/index.html
+deliverables/md2docx/md2docx.js
+deliverables/md2docx/md2docx.mjs
+dsx-pro/deliverables/
+
+# ---------- 抓取到的第三方站点产物（版权原因不入库）----------
+# 只保留我们自己的侦察脚本与结论报告
+_extract/
+dsx-pro/docs/recon-deepseek/dl/
+dsx-pro/docs/recon-deepseek/ctx*.txt
+dsx-pro/docs/recon-deepseek/grep*.txt
+dsx-pro/docs/recon-deepseek/grep*.json
+dsx-pro/docs/recon-deepseek/probe.json
+dsx-pro/docs/recon-deepseek/probe.txt
+dsx-pro/docs/recon-deepseek/shell.html
+dsx-pro/docs/recon-deepseek/assets.json
+
+# ---------- 其它项目的文件 ----------
+一键解题目标拟定.md

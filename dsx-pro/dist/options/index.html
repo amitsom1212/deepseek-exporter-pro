@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DeepSeek 对话导出 Pro · 设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <img src="../icons/icon48.png" alt="" width="28" height="28">
+      <div>
+        <h1>DeepSeek 对话导出 Pro</h1>
+        <p class="sub">设置默认导出位置、默认导出内容与图片处理方式</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <span id="save-state" class="save-state"></span>
+      <button id="btn-save" class="btn primary">保存设置</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ========== 1. 导出位置 ========== -->
+    <section class="card">
+      <h2>① 导出位置（写入浏览器下载目录时使用）</h2>
+      <p class="desc">
+        Chrome 的下载接口只能写到<b>浏览器下载目录</b>内部，所以这里填的是「下载目录下的相对路径」。
+        <b>若你已经授权了真实文件夹（见 ②），下面这两个路径不会生效</b>——那种情况下文件直接写进授权文件夹，
+        只用 ② 里的「授权文件夹内部子目录」作为前缀。
+      </p>
+
+      <div class="field">
+        <label for="singleFolder">默认单独导出的文件夹</label>
+        <div class="with-prefix">
+          <span class="prefix">下载目录 /</span>
+          <input id="singleFolder" type="text" placeholder="DeepSeek导出/单条" spellcheck="false">
+        </div>
+        <p class="hint">在对话页点「导出」时，单个会话的 Markdown / Word 文件会放到这里。</p>
+      </div>
+
+      <div class="field">
+        <label for="batchFolder">默认批量导出的文件夹</label>
+        <div class="with-prefix">
+          <span class="prefix">下载目录 /</span>
+          <input id="batchFolder" type="text" placeholder="DeepSeek导出/批量" spellcheck="false">
+        </div>
+        <p class="hint">批量导出所有勾选的会话时使用。开启「AI 归类归档」后，分类子目录会建在这里面。</p>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input id="batchSubfolder" type="checkbox">
+          <span>批量导出时，在目标目录下为<b>每个会话新建一个子文件夹</b></span>
+        </label>
+      </div>
+
+      <div class="field indent" id="subfolder-field">
+        <label for="batchSubfolderPattern">子文件夹命名模板</label>
+        <input id="batchSubfolderPattern" type="text" placeholder="{date}_{title}" spellcheck="false">
+        <p class="hint">
+          可用变量：<code>{date}</code> 日期 · <code>{time}</code> 时间 · <code>{title}</code> 会话标题 ·
+          <code>{index}</code> 序号 · <code>{id}</code> 会话 ID。例：<code>{date}_{title}</code> → <code>20260916_如何学习线性代数</code>
+        </p>
+        <div class="preview" id="subfolder-preview"></div>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input id="batchIndex" type="checkbox">
+          <span>批量导出时额外生成一份「00-索引.md」，列出所有已导出的会话</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- ========== 2. 真实文件夹授权 ========== -->
+    <section class="card">
+      <h2>② 真实文件夹（可选，突破下载目录限制）</h2>
+      <p class="desc">
+        授权一个磁盘上的真实文件夹后，批量导出会直接写进它（可以带子目录、可以是任意盘符）。
+        授权信息保存在浏览器本地，扩展不会上传任何内容。
+      </p>
+      <div class="dir-status" id="dir-status">正在检查…</div>
+      <div class="row">
+        <button id="btn-pick-dir" class="btn">选择文件夹并授权</button>
+        <button id="btn-regrant" class="btn ghost">重新授权</button>
+        <button id="btn-clear-dir" class="btn danger ghost">解除授权</button>
+      </div>
+      <label class="check" style="margin-top:12px">
+        <input id="useDirectoryHandle" type="checkbox">
+        <span>导出时优先写入已授权文件夹（失败时自动回退到下载目录）</span>
+      </label>
+
+      <div class="field indent" style="margin-top:14px">
+        <label for="dirSubfolder">已授权文件夹<b>内部</b>的子目录（可留空）</label>
+        <input id="dirSubfolder" type="text" placeholder="留空 = 直接放在授权文件夹根目录" spellcheck="false">
+        <p class="hint">
+          这里填的是<b>相对已授权文件夹</b>的路径，和上面 ① 里那两个「下载目录相对路径」是<b>两套互不叠加</b>的前缀：
+          授权文件夹生效时，只用这一条，不会再套一层 ① 的路径。
+        </p>
+      </div>
+
+      <div class="field">
+        <label>实际写入位置预览</label>
+        <div class="path-preview" id="dir-path-preview"></div>
+      </div>
+
+      <p class="hint">
+        注意：浏览器要求「写文件」权限必须由一次用户点击授予。重启浏览器后权限可能变为待确认，
+        此时导出会自动回退到下载目录并在页面提示你重新授权。
+      </p>
+    </section>
+
+    <!-- ========== 3. 默认导出内容 ========== -->
+    <section class="card">
+      <h2>③ 默认导出内容</h2>
+      <p class="desc">设置面板打开时默认勾选哪些内容。在页面上仍然可以临时改动。</p>
+
+      <div class="field">
+        <label>单独导出时默认勾选</label>
+        <div class="chips" id="singleSlots"></div>
+      </div>
+
+      <div class="field">
+        <label>批量导出时默认勾选</label>
+        <div class="chips" id="batchSlots"></div>
+        <p class="hint" id="slots-hint-docx"></p>
+      </div>
+
+      <div class="field">
+        <label>单独导出默认格式</label>
+        <div class="chips" id="defaultFormat"></div>
+      </div>
+
+      <div class="field">
+        <label>批量导出默认格式（可多选）</label>
+        <div class="chips" id="batchFormats"></div>
+      </div>
+    </section>
+
+    <!-- ========== 4. 图片 ========== -->
+    <section class="card">
+      <h2>④ 图片导出</h2>
+      <p class="desc">
+        网页里复制下来的图大多是 <b>webp</b>，很多 Windows 程序打不开，所以默认统一转成 PNG。
+      </p>
+
+      <div class="field">
+        <label>输出格式</label>
+        <div class="chips" id="imageFormat"></div>
+        <p class="hint">PNG 无损、体积大；JPEG 体积小但有损且不支持透明；「保持原格式」不转码。</p>
+      </div>
+
+      <div class="field indent" id="quality-field">
+        <label for="imageQuality">JPEG 质量：<b id="quality-value">0.92</b></label>
+        <input id="imageQuality" type="range" min="0.5" max="1" step="0.01">
+      </div>
+
+      <div class="field">
+        <label>图片存放方式</label>
+        <div class="chips" id="imageMode"></div>
+      </div>
+
+      <div class="field indent" id="image-folder-field">
+        <label for="imageFolder">图片子目录名（相对导出目录）</label>
+        <input id="imageFolder" type="text" placeholder="images" spellcheck="false">
+      </div>
+
+      <div class="field">
+        <label for="docxImageMaxWidth">Word 文档里图片的最大宽度（像素）</label>
+        <input id="docxImageMaxWidth" type="number" min="120" max="1400" step="20">
+      </div>
+    </section>
+
+    <!-- ========== 5. AI 归类归档 ========== -->
+    <section class="card">
+      <h2>⑤ AI 归类归档（可选）</h2>
+      <p class="desc">
+        开启后，导出前会把「会话标题 + 开头一段正文」发送到<b>你自己配置的接口</b>，
+        判断它是否属于知识答疑、属于哪个科目，并据此把文件归档到不同文件夹。
+        <b>默认关闭</b>；API Key 只保存在本机浏览器存储里，不会上传到任何第三方。
+        也可以指向本地 Ollama / LM Studio，这样内容完全不出本机。
+      </p>
+
+      <div class="field">
+        <label class="check">
+          <input id="aiEnabled" type="checkbox">
+          <span>启用 AI 归类归档</span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label>接口预设（点击填充下面的地址与模型）</label>
+        <div class="chips" id="aiPreset"></div>
+      </div>
+
+      <div class="field">
+        <label for="aiBaseUrl">接口地址（OpenAI 兼容，会自动补 <code>/v1</code>）</label>
+        <input id="aiBaseUrl" type="text" placeholder="https://api.deepseek.com/v1" spellcheck="false">
+      </div>
+
+      <div class="field">
+        <label for="aiApiKey">API Key（本地接口可留空）</label>
+        <input id="aiApiKey" type="password" placeholder="sk-..." spellcheck="false" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="aiModel">模型名</label>
+        <input id="aiModel" type="text" placeholder="deepseek-chat" spellcheck="false">
+      </div>
+
+      <div class="row">
+        <button id="btn-ai-test" class="btn">测试接口</button>
+        <button id="btn-ai-grant" class="btn ghost">授予该接口域名的访问权限</button>
+        <button id="btn-ai-clear-cache" class="btn ghost">清空归类缓存</button>
+        <span id="ai-status" class="tag"></span>
+      </div>
+      <pre id="ai-test-out" class="diag" hidden></pre>
+      <p class="hint">
+        「测试接口」会用一段固定的数学提问试跑一次，直接告诉你接口通不通、返回的分类是否解析成功。
+        若提示缺少访问权限，点右边的「授予权限」。
+      </p>
+
+      <div class="field" style="margin-top:16px">
+        <label for="aiSubjects">科目清单（每行一个，用 <code>/</code> 表示层级）</label>
+        <textarea id="aiSubjects" class="input" spellcheck="false" rows="8"
+          placeholder="数学&#10;英语&#10;政治&#10;408/数据结构&#10;408/计算机网络"></textarea>
+        <p class="hint">
+          例：<code>408/数据结构</code> 表示父科目 408、子科目 数据结构。
+          模型只会从这份清单里选，不会自创目录；对不上的会落到下面的兜底目录。
+        </p>
+      </div>
+
+      <div class="field">
+        <label>归档方式</label>
+        <div class="chips" id="aiRouteMode"></div>
+      </div>
+
+      <div class="field indent">
+        <label for="aiNonQaFolder">非知识答疑的目录名</label>
+        <input id="aiNonQaFolder" type="text" spellcheck="false">
+        <label for="aiFallbackFolder" style="margin-top:10px;display:block">无法判定科目时的兜底目录名</label>
+        <input id="aiFallbackFolder" type="text" spellcheck="false">
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input id="aiRouteByCategory" type="checkbox">
+          <span>导出时真的按分类归档目录（关掉则只判断、不改路径）</span>
+        </label>
+        <label class="check" style="margin-top:8px">
+          <input id="aiKeepSessionSubfolder" type="checkbox">
+          <span>归档目录下仍为每个会话保留子文件夹</span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label for="aiMaxChars">送给模型的正文长度上限（字符）</label>
+        <input id="aiMaxChars" type="number" min="200" max="4000" step="100">
+        <p class="hint">越长约准、也越贵。实际只取「首个提问 + 首段回答」的开头部分；结果会缓存，重复导出同一会话不再重复调用。</p>
+      </div>
+
+      <div class="field">
+        <label>归档路径预览（按当前设置）</label>
+        <div class="path-preview" id="ai-path-preview"></div>
+      </div>
+    </section>
+
+    <!-- ========== 6. 权限与诊断 ========== -->
+    <section class="card">
+      <h2>⑥ 权限与诊断</h2>
+      <p class="desc">
+        下载图片时，如果图片服务器没有开启跨域许可，扩展需要「访问任意网站」的权限才能替你取回图片字节。
+        不开也能用，只是这类图片只能保留原始链接、无法转成 PNG。
+      </p>
+      <div class="row">
+        <button id="btn-grant-hosts" class="btn">授予任意网站访问权限</button>
+        <button id="btn-revoke-hosts" class="btn ghost">撤销该权限</button>
+        <span id="hosts-status" class="tag"></span>
+      </div>
+
+      <div class="field" style="margin-top:16px">
+        <label class="check">
+          <input id="useApi" type="checkbox">
+          <span>优先通过站点接口读取对话（<b>推荐</b>）：公式保留 LaTeX 原文、批量导出不必逐个点开会话；
+            接口不可用时会自动回退到页面抓取</span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input id="verbose" type="checkbox">
+          <span>输出详细调试日志（在页面控制台里能看到命中的选择器）</span>
+        </label>
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <label for="diag-tab" class="inline-label">诊断目标</label>
+        <select id="diag-tab" class="select"></select>
+        <button id="btn-refresh-tabs" class="btn ghost">刷新列表</button>
+      </div>
+      <p class="hint">
+        设置页自己是扩展页面，跑不了内容脚本，所以这里要显式选择「诊断哪个网页」。
+        下拉框会自动列出你已打开的 DeepSeek / DSH 页面。
+      </p>
+
+      <div class="row" style="margin-top:10px">
+        <button id="btn-diagnose" class="btn">诊断选中的页面</button>
+        <button id="btn-copy-diag" class="btn ghost">复制诊断报告</button>
+        <span id="diag-status" class="tag"></span>
+      </div>
+      <pre id="diag-out" class="diag" hidden></pre>
+
+      <div class="row" style="margin-top:14px">
+        <button id="btn-export-settings" class="btn ghost">导出设置为 JSON</button>
+        <button id="btn-import-settings" class="btn ghost">导入设置</button>
+        <input id="import-file" type="file" accept="application/json" hidden>
+        <button id="btn-reset" class="btn danger ghost">恢复默认设置</button>
+      </div>
+      <p class="hint" id="version-line"></p>
+    </section>
+
+    <!-- ========== 7. 使用说明 ========== -->
+    <section class="card">
+      <h2>⑦ 用法速查</h2>
+      <ol class="steps">
+        <li>打开 <code>chat.deepseek.com</code> 的任意对话，输入框旁边会出现「导出对话」按钮。</li>
+        <li>点开面板 → 在「导出内容」里勾选 提问 / 思考 / 回答 / 图片；想精细控制就展开某一条消息单独勾。</li>
+        <li>选好格式（Markdown / Word / 纯文本 / JSON），点「导出」。Word 里的数学公式是<b>可编辑的 Word 公式</b>。</li>
+        <li>切到「批量导出」标签 → 自动扫描左侧所有会话 → 勾选后一键导出到上面设置的文件夹。</li>
+        <li>DSH 本地界面（<code>127.0.0.1:3080</code>）同样支持，操作完全一致。</li>
+      </ol>
+      <p class="hint">
+        找不到按钮时：刷新一次页面，或点击浏览器工具栏上的扩展图标 → 「打开导出面板」。
+      </p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="options.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>DSX Offscreen</title>
+</head>
+<body>
+  <!--
+    不可见的 offscreen 文档：Service Worker 里既没有 DOM 也不方便操作
+    File System Access 句柄，把「写入用户授权目录」这件事放在这里做。
+    本页不显示任何界面，只处理 __to === 'offscreen' 的消息。
+  -->
+  <script src="offscreen.js" type="module"></script>
+</body>
+</html>

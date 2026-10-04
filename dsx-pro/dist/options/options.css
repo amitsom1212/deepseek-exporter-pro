@@ -1,0 +1,346 @@
+/* 设置页样式（插件自己的页面，不需要 Shadow DOM） */
+
+:root {
+  --bg: #f4f5f7;
+  --card: #ffffff;
+  --border: #e3e5e9;
+  --border-strong: #cfd3da;
+  --text: #1b1d22;
+  --text-dim: #5b6270;
+  --text-faint: #8b93a1;
+  --accent: #4d6bfe;
+  --accent-soft: #eef1ff;
+  --danger: #d93a3f;
+  --ok: #17803d;
+  --warn: #b45309;
+  --radius: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131417;
+    --card: #1b1d21;
+    --border: #2c2f36;
+    --border-strong: #3d414a;
+    --text: #e8eaee;
+    --text-dim: #a3aab6;
+    --text-faint: #7b8391;
+    --accent: #6b83ff;
+    --accent-soft: #232741;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+}
+
+code {
+  background: rgba(127, 127, 127, .14);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: ui-monospace, Consolas, Menlo, monospace;
+  font-size: .9em;
+}
+
+/* ---------------- 顶栏 ---------------- */
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 28px;
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand h1 { margin: 0; font-size: 17px; font-weight: 650; }
+.sub { margin: 0; color: var(--text-faint); font-size: 12.5px; }
+.top-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.save-state { font-size: 12.5px; color: var(--ok); min-width: 70px; text-align: right; }
+
+/* ---------------- 布局 ---------------- */
+main {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 22px 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+}
+.card h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 650;
+}
+.desc {
+  margin: 0 0 16px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field.indent { padding-left: 26px; border-left: 2px solid var(--border); }
+.field > label {
+  display: block;
+  font-size: 13px;
+  font-weight: 550;
+  margin-bottom: 6px;
+}
+
+.hint {
+  margin: 6px 0 0;
+  color: var(--text-faint);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.hint.warn { color: var(--warn); }
+
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  height: 36px;
+  padding: 0 11px;
+  font-size: 13.5px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+}
+input[type="text"]:focus,
+input[type="number"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--card);
+}
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+.with-prefix {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  overflow: hidden;
+}
+.with-prefix .prefix {
+  padding: 0 10px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  color: var(--text-faint);
+  font-size: 12.5px;
+  background: rgba(127, 127, 127, .08);
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+}
+.with-prefix input {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  height: 36px;
+}
+
+/* ---------------- 勾选 ---------------- */
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 13.5px;
+  cursor: pointer;
+  font-weight: 400;
+}
+.check input {
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+/* ---------------- chips ---------------- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  transition: all .13s;
+}
+.chip:hover { border-color: var(--border-strong); }
+.chip.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.chip .tick {
+  width: 12px;
+  height: 12px;
+  opacity: .3;
+}
+.chip.on .tick { opacity: 1; }
+
+/* ---------------- 按钮 ---------------- */
+.btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--card);
+  color: var(--text);
+  font-size: 13.5px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .13s;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+.btn.primary:hover { filter: brightness(1.08); color: #fff; }
+.btn.ghost { background: transparent; border-color: var(--border); color: var(--text-dim); }
+.btn.danger { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, var(--border)); }
+.btn.danger:hover { background: color-mix(in srgb, var(--danger) 10%, transparent); color: var(--danger); border-color: var(--danger); }
+
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+.tag {
+  font-size: 12px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(127, 127, 127, .12);
+  color: var(--text-dim);
+}
+.tag.ok { background: rgba(23, 128, 61, .14); color: var(--ok); }
+.tag.warn { background: rgba(180, 83, 9, .14); color: var(--warn); }
+
+.dir-status {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  margin-bottom: 12px;
+  font-family: ui-monospace, Consolas, monospace;
+  word-break: break-all;
+}
+
+.preview {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+.preview b { color: var(--accent); }
+
+.steps { margin: 0; padding-left: 20px; color: var(--text-dim); font-size: 13.5px; }
+.steps li { margin-bottom: 7px; }
+
+.diag {
+  margin: 12px 0 0;
+  max-height: 340px;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-dim);
+  font-family: ui-monospace, Consolas, Menlo, monospace;
+  font-size: 11.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* ---------------- 下拉框 / 多行输入 ---------------- */
+.select,
+textarea.input {
+  min-width: 180px;
+  height: 36px;
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+}
+.select { flex: 1; max-width: 460px; }
+textarea.input {
+  width: 100%;
+  height: auto;
+  min-height: 104px;
+  padding: 9px 11px;
+  line-height: 1.65;
+  resize: vertical;
+  font-family: ui-monospace, Consolas, Menlo, monospace;
+  font-size: 12.5px;
+}
+.select:focus,
+textarea.input:focus { outline: none; border-color: var(--accent); }
+
+.inline-label {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.path-preview {
+  margin-top: 4px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-family: ui-monospace, Consolas, Menlo, monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  word-break: break-all;
+  line-height: 1.7;
+}
+.path-preview b { color: var(--accent); }
+
+/* ---------------- toast ---------------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 32px;
+  transform: translateX(-50%) translateY(20px);
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: #1e2027;
+  color: #fff;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .22s;
+  z-index: 100;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.err { background: var(--danger); }
