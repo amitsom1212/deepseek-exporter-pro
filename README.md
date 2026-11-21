@@ -92,6 +92,17 @@ deliverables/       现成分发文件（zip 请从 Releases 下载）
 
 ---
 
+## 相关项目
+
+导出只是第一步，导出后的 Markdown 还得看得舒服：
+
+**[Markdown Math Preview (KaTeX)](https://github.com/amitsom1212/jetbrains-markdown-math)**
+— 给 PyCharm / IDEA / CLion 的 Markdown 补上 KaTeX 公式渲染，在项目窗口内以
+「源码 + 预览」分栏呈现，离线可用。本扩展导出的 `.md` 里全是 `\(...\)` 定界符，
+JetBrains 内置预览不认这类写法，配合这个插件才看得到排版好的公式。
+
+---
+
 ## 许可
 
 本项目 **MIT**。基于下列 MIT 项目重写并扩展，出处与许可见
