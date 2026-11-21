@@ -45,3 +45,7 @@ dsx-pro/docs/recon-deepseek/assets.json
 
 # ---------- 其它项目的文件 ----------
 一键解题目标拟定.md
+
+# ---------- 临时工作区（归档用，不入库）----------
+_scratch/
+.codeartsdoer/

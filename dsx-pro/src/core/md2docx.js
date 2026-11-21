@@ -488,7 +488,7 @@ export function protectMath(md) {
   const store = [];
   let out = '';
   let i = 0;
-  const finder = /`{3,}|~{3,}|`|\$\$|\$/g;
+  const finder = /`{3,}|~{3,}|`|\$\$|\$|\\\(|\\\[/g;
   while (i < s.length) {
     finder.lastIndex = i;
     const m = finder.exec(s);
@@ -501,7 +501,7 @@ export function protectMath(md) {
     out += s.slice(i, at);
 
     if (tok[0] === '`' || tok[0] === '~') {
-      // 代码围栏 / 行内代码：整体原样保留，不解析其中的 $
+      // 代码围栏 / 行内代码：整体原样保留，不解析其中的 $ 与公式
       const close = s.indexOf(tok, at + tok.length);
       if (close === -1) {
         out += s.slice(at);
@@ -509,6 +509,28 @@ export function protectMath(md) {
       }
       out += s.slice(at, close + tok.length);
       i = close + tok.length;
+      continue;
+    }
+
+    if (tok === '\\(' || tok === '\\[') {
+      // LaTeX 原生定界符必须在交给 marked 之前摘出来：marked 会把 \\( 当转义
+      // 处理成 (，公式就退化成普通圆括号文本（DeepSeek 导出的 md 全是这种写法）。
+      if (s[at - 1] === '\\') {
+        out += tok;
+        i = at + tok.length;
+        continue;
+      }
+      const close = tok === '\\(' ? '\\)' : '\\]';
+      const end = s.indexOf(close, at + 2);
+      if (end !== -1 && s.slice(at + 2, end).trim().length > 0) {
+        const body = s.slice(at + 2, end);
+        store.push(tok === '\\(' ? `$${body}$` : `$$${body}$$`);
+        out += `${PH_OPEN}${store.length - 1}${PH_CLOSE}`;
+        i = end + close.length;
+        continue;
+      }
+      out += tok;
+      i = at + tok.length;
       continue;
     }
 

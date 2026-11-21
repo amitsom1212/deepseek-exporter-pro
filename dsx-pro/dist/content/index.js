@@ -41719,7 +41719,7 @@ ${text2}</tr>
     const store = [];
     let out = "";
     let i = 0;
-    const finder = /`{3,}|~{3,}|`|\$\$|\$/g;
+    const finder = /`{3,}|~{3,}|`|\$\$|\$|\\\(|\\\[/g;
     while (i < s.length) {
       finder.lastIndex = i;
       const m = finder.exec(s);
@@ -41738,6 +41738,25 @@ ${text2}</tr>
         }
         out += s.slice(at, close2 + tok.length);
         i = close2 + tok.length;
+        continue;
+      }
+      if (tok === "\\(" || tok === "\\[") {
+        if (s[at - 1] === "\\") {
+          out += tok;
+          i = at + tok.length;
+          continue;
+        }
+        const close2 = tok === "\\(" ? "\\)" : "\\]";
+        const end2 = s.indexOf(close2, at + 2);
+        if (end2 !== -1 && s.slice(at + 2, end2).trim().length > 0) {
+          const body = s.slice(at + 2, end2);
+          store.push(tok === "\\(" ? `$${body}$` : `$$${body}$$`);
+          out += `${PH_OPEN}${store.length - 1}${PH_CLOSE}`;
+          i = end2 + close2.length;
+          continue;
+        }
+        out += tok;
+        i = at + tok.length;
         continue;
       }
       if (tok === "$$") {

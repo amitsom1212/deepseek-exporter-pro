@@ -1,6 +1,6 @@
 {
   "name": "deepseek-exporter-pro",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "private": true,
   "type": "module",
   "description": "DeepSeek 对话导出 Pro —— 支持 chat.deepseek.com 与 DSH GUI 的对话导出扩展（Markdown / DOCX / 图片）",
